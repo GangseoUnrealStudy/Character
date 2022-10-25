@@ -32,6 +32,38 @@ void AMyCharacter::BeginPlay()
 	
 }
 
+void AMyCharacter::MoveForward(float Value)
+{
+	if (Controller != nullptr && Value != 0.f)
+	{
+		//캐릭터의 정방향이 아닌 컨트롤러의 정방향을 구해야 한다.
+
+		//const FRotator YawRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+		const FVector Direction(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X));
+		AddMovementInput(Direction, Value);
+
+	}
+}
+
+void AMyCharacter::MoveRight(float Value)
+{
+	if (Controller != nullptr && Value != 0.f)
+	{
+		const FVector Direction(FRotationMatrix(FRotator(0.0f, Controller->GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y));
+		AddMovementInput(Direction, Value);
+	}
+}
+
+void AMyCharacter::Turn(float Value)
+{
+	AddControllerYawInput(Value);
+}
+
+void AMyCharacter::LookUp(float Value)
+{
+	AddControllerPitchInput(Value);
+}
+
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
@@ -44,5 +76,13 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMyCharacter::Jump);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AMyCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Turn", this, &AMyCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &AMyCharacter::LookUp);
 }
 
